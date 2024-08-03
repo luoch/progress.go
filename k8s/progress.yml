@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    microsv.service: progress
+  name: progress
+  namespace: microsv
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      microsv.service: progress
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        microsv.service: progress
+      namespace: microsv
+    spec:
+      containers:
+        - image: luoch/progress.go:1.0.4
+          name: progress
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: LANG
+              value: en_US.UTF-8
+            - name: GIN_MODE
+              value: release
+            - name: PORT
+              value: "8000"
+          resources: {}
+      restartPolicy: Always
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: progress
+  namespace: microsv
+spec:
+  ports:
+    - name: "8000"
+      port: 8000
+      targetPort: 8000
+  selector:
+    microsv.service: progress
+status:
+  loadBalancer: {}

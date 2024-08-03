@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{{ .TotalWidth }}" height="{{.TotalHeight}}" viewBox="-{{div .TotalHeight 2.0}} -{{div .TotalHeight 2.0}} {{ .TotalWidth }} {{.TotalHeight}}" style="vertical-align: bottom;">
+  <circle cx="0" cy="0" r="{{ .CircleRadius }}" transform="rotate(-90)" style="stroke: {{.PieColor}}; fill: none; stroke-width: 2;">
+  </circle>
+  
+  {{ if lt .Ratio 1.0 }}
+  <path d="M0,-{{.R}} A{{.R}},{{.R}} 0 {{.LargeArcFlag}},1 {{.TargetX}},{{.TargetY}}" style="fill: none; stroke: {{.PieColor}}; stroke-width: {{mul .R 2}}; stroke-linecap: butt;">
+  </path>
+  {{ end }}
+
+  {{ if ge .Ratio 1.0 }}
+  <circle cx="0" cy="0" r="{{ .CircleRadius }}" style="stroke: {{.PieColor}}; stroke-width: 0; fill: {{.PieColor}};">
+  </circle>
+  {{ end }}
+  <text x="{{ .TextPosX }}" y="{{.TextPosY}}" font-size="{{.FontSize}}">
+      {{.Prefix}}{{.Progress}}{{.Suffix}}
+  </text>
+</svg>
