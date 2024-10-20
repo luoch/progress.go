@@ -1,4 +1,6 @@
-# What is progress.go?
+# Progress in Markdown
+---
+## What is progress.go?
 
 - It's a golang version built with Gin of [progressd.io](https://github.com/fehmicansaglam/progressd.io).
 - Support non-ascii characters such as Chinese.
