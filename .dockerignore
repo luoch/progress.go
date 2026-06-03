@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.dockerignore
+
+progress
+*.test
+*.out
+
+README.md
+LICENSE
+k8s
