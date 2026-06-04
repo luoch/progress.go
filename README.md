@@ -23,6 +23,8 @@
     | suffix  | query | string | % | suffix of progress value | ❌ |
     | prefix  | query | string | "" | prefix of progress value | ❌ |
     | width  | query | int | 90 | total progress width | ❌ |
+    | titlewidth  | query | int | 0 | fixed title display width, 0 means auto | ❌ |
+    | titlepadding  | query | int | 10 | title display width padding | ❌ |
     | height  | query | int | 20 | total progress height | ❌ |
     | fontsize  | query | int | 11 | font size of progress text | ❌ |
 

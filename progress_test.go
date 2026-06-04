@@ -50,11 +50,25 @@ func TestGetTitleWidth(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := getTitleWidth(tt.title, tt.fontSize)
+			got := getTitleWidth(tt.title, tt.fontSize, 10)
 			if got != tt.want {
 				t.Fatalf("getTitleWidth(%q, %d) = %d, want %d", tt.title, tt.fontSize, got, tt.want)
 			}
 		})
+	}
+}
+
+func TestGetTitleWidthUsesPadding(t *testing.T) {
+	got := getTitleWidth("go", 11, 24)
+	want := 38
+	if got != want {
+		t.Fatalf("getTitleWidth(%q, %d, %d) = %d, want %d", "go", 11, 24, got, want)
+	}
+
+	got = getTitleWidth("go", 11, -1)
+	want = 14
+	if got != want {
+		t.Fatalf("getTitleWidth with negative padding = %d, want %d", got, want)
 	}
 }
 
@@ -154,6 +168,29 @@ func TestProgressThemeRendering(t *testing.T) {
 	} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("themed pie body does not contain %q", want)
+		}
+	}
+}
+
+func TestProgressBarTitleSizing(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	router := newRouter()
+
+	req := httptest.NewRequest(http.MethodGet, "/bar/50?title=progress&titlewidth=120&titlepadding=40&height=28&width=240", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("GET /bar title sizing status = %d, want %d", w.Code, http.StatusOK)
+	}
+	body := w.Body.String()
+	for _, want := range []string{
+		`<svg width="240" height="28"`,
+		`x="120" width="120" height="28"`,
+		`d="M120 0h4v28h-4z"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("title-sized bar body does not contain %q", want)
 		}
 	}
 }

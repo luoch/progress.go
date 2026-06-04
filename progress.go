@@ -22,6 +22,8 @@ type Progress struct {
 	Suffix     string `form:"suffix,default=%"`
 	Prefix     string `form:"prefix,default="`
 	Width      int    `form:"width,default=0"`
+	TitleWidth int    `form:"titlewidth,default=0"`
+	TitlePad   int    `form:"titlepadding,default=10"`
 	Height     int    `form:"height,default=20"`
 	FontSize   int    `form:"fontsize,default=11"`
 	Size       int    `form:"size,default=17"`
@@ -237,11 +239,14 @@ func getColor(ratio float32, theme ProgressTheme) string {
 	return color
 }
 
-func getTitleWidth(title string, fontSize int) int {
+func getTitleWidth(title string, fontSize int, padding int) int {
 	if title == "" {
 		return 0
 	}
-	return 10 + getSVGTextWidth(title, fontSize)
+	if padding < 0 {
+		padding = 0
+	}
+	return padding + getSVGTextWidth(title, fontSize)
 }
 
 func getSVGTextWidth(text string, fontSize int) int {
@@ -295,7 +300,10 @@ func getProgressbar(c *gin.Context) {
 	bar.FontSize = progress.FontSize
 	bar.TotalHeight = progress.Height
 	if progress.Title != "" {
-		bar.TitleWidth = getTitleWidth(progress.Title, bar.FontSize)
+		bar.TitleWidth = getTitleWidth(progress.Title, bar.FontSize, progress.TitlePad)
+		if progress.TitleWidth > 0 {
+			bar.TitleWidth = progress.TitleWidth
+		}
 		bar.ProgressWidth = 60
 	} else {
 		bar.TitleWidth = 0
