@@ -42,42 +42,43 @@
     }
 
     .app {
-      min-height: 100vh;
+      min-height: 100dvh;
       display: grid;
-      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      grid-template-columns: minmax(340px, 460px) minmax(0, 1fr);
     }
 
     .panel {
       background: var(--surface);
       border-right: 1px solid var(--border);
-      padding: 24px;
+      max-height: 100dvh;
+      padding: 16px;
       overflow-y: auto;
     }
 
     .brand {
-      margin-bottom: 22px;
+      margin-bottom: 12px;
     }
 
     h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 21px;
       line-height: 1.15;
       letter-spacing: 0;
     }
 
     .subtitle {
-      margin: 8px 0 0;
+      margin: 5px 0 0;
       color: var(--muted);
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .controls {
       display: grid;
-      gap: 18px;
+      gap: 8px;
     }
 
     .section-label {
-      margin: 3px 0 -6px;
+      margin: 0 0 -4px;
       color: #3f3f46;
       font-size: 12px;
       font-weight: 800;
@@ -86,17 +87,18 @@
     .field,
     .field-row {
       display: grid;
-      gap: 7px;
+      gap: 4px;
     }
 
     .field-row {
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      column-gap: 8px;
+      row-gap: 6px;
     }
 
     label {
       color: #344054;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
     }
 
@@ -108,14 +110,14 @@
       border-radius: 6px;
       background: #fff;
       color: var(--text);
-      min-height: 40px;
-      padding: 8px 10px;
+      min-height: 32px;
+      padding: 5px 8px;
       outline: none;
     }
 
     input[type="color"] {
-      padding: 4px;
-      height: 40px;
+      padding: 3px;
+      height: 32px;
     }
 
     input:focus,
@@ -136,7 +138,7 @@
 
     .mode button {
       border: 0;
-      min-height: 38px;
+      min-height: 32px;
       background: transparent;
       color: #344054;
       cursor: pointer;
@@ -150,18 +152,18 @@
 
     .theme-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
     }
 
     .theme-card {
       border: 1px solid var(--border);
       border-radius: 8px;
       background: #fff;
-      padding: 10px;
-      min-height: 74px;
+      padding: 8px;
+      min-height: 50px;
       display: grid;
-      gap: 8px;
+      gap: 6px;
       text-align: left;
       cursor: pointer;
       color: var(--text);
@@ -173,7 +175,7 @@
     }
 
     .theme-name {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
     }
 
@@ -183,8 +185,8 @@
     }
 
     .swatch {
-      width: 18px;
-      height: 18px;
+      width: 14px;
+      height: 14px;
       border: 1px solid rgba(15, 23, 42, 0.12);
       border-radius: 4px;
     }
@@ -200,9 +202,9 @@
       border-radius: 7px;
       background: #fff;
       color: #3f3f46;
-      min-height: 38px;
+      min-height: 32px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
     }
 
@@ -230,33 +232,35 @@
     .preview-shell {
       min-height: 220px;
       display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 22px;
       align-items: center;
       justify-items: center;
       padding: 34px;
     }
 
-    .preview-shell[data-theme="classic"] {
-      background: linear-gradient(135deg, #ffffff, #edf2f7);
+    .preview-toolbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
     }
 
-    .preview-shell[data-theme="slate"] {
-      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    .preview-background {
+      display: inline-grid;
+      grid-template-columns: auto 34px;
+      gap: 8px;
+      align-items: center;
+      color: #344054;
+      font-size: 12px;
+      font-weight: 700;
     }
 
-    .preview-shell[data-theme="mint"] {
-      background: linear-gradient(135deg, #ecfdf5, #ccfbf1);
-    }
-
-    .preview-shell[data-theme="amber"] {
-      background: linear-gradient(135deg, #fffbeb, #fed7aa);
-    }
-
-    .preview-shell[data-theme="neon"] {
-      background: linear-gradient(135deg, #020617, #111827);
-    }
-
-    .preview-shell[data-theme="mono"] {
-      background: linear-gradient(135deg, #fafafa, #d4d4d8);
+    .preview-background input[type="color"] {
+      width: 34px;
+      min-height: 28px;
+      height: 28px;
+      padding: 2px;
     }
 
     .preview {
@@ -344,6 +348,7 @@
       .panel {
         border-right: 0;
         border-bottom: 1px solid var(--border);
+        max-height: none;
       }
 
       .workspace {
@@ -507,7 +512,13 @@
     </aside>
 
     <section class="workspace">
-      <div class="preview-shell" id="preview-shell" data-theme="classic">
+      <div class="preview-shell" id="preview-shell">
+        <div class="preview-toolbar">
+          <label class="preview-background" for="preview-background">
+            Preview background
+            <input id="preview-background" name="preview-background" type="color" value="#ffffff">
+          </label>
+        </div>
         <div class="preview">
           <img id="preview" alt="Progress preview">
         </div>
@@ -562,7 +573,8 @@
       height: document.getElementById("height"),
       barFontSize: document.getElementById("bar-fontsize"),
       size: document.getElementById("size"),
-      pieFontSize: document.getElementById("pie-fontsize")
+      pieFontSize: document.getElementById("pie-fontsize"),
+      previewBackground: document.getElementById("preview-background")
     };
 
     const preview = document.getElementById("preview");
@@ -641,7 +653,6 @@
       document.querySelectorAll("[data-theme]").forEach((button) => {
         button.classList.toggle("active", button.dataset.theme === theme);
       });
-      previewShell.dataset.theme = theme;
       if (fields.color.value.toLowerCase() !== themeColors[theme].toLowerCase()) {
         fields.color.value = themeColors[theme];
       }
@@ -658,6 +669,7 @@
 
     function updateOutput() {
       const url = new URL(buildPath(), window.location.origin).toString();
+      previewShell.style.backgroundColor = fields.previewBackground.value || "#ffffff";
       preview.src = url;
       urlOutput.value = url;
       markdownOutput.value = `![Progress](${url})`;

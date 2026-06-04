@@ -110,6 +110,7 @@ func TestIndexPage(t *testing.T) {
 	for _, want := range []string{
 		"Progress in Markdown",
 		`id="preview"`,
+		`id="preview-background"`,
 		`id="generated-url"`,
 		`id="generated-markdown"`,
 		`data-copy="generated-url"`,
@@ -118,11 +119,16 @@ func TestIndexPage(t *testing.T) {
 		`data-skin="pill"`,
 		`addParam(params, "theme", state.theme, "classic")`,
 		`addParam(params, "skin", state.skin, "badge")`,
+		`previewShell.style.backgroundColor = fields.previewBackground.value || "#ffffff"`,
 		"`/${state.type}/${progress}${query ? `?${query}` : \"\"}`",
 	} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("GET / body does not contain %q", want)
 		}
+	}
+
+	if strings.Contains(body, ".preview-shell[data-theme=") {
+		t.Fatal("GET / body should not bind preview background to the selected theme")
 	}
 }
 
