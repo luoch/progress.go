@@ -11,36 +11,41 @@
   </linearGradient>
   {{ end }}
 
-  <rect rx="{{ .Radius }}" x="0" width="{{ .TotalWidth }}" height="{{.TotalHeight}}" fill="#{{ .TitleColor }}"/>
-  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" width="{{ .ProgressWidth }}" height="{{.TotalHeight}}" fill="{{ .TrackColor }}" />
-  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" width="{{ .BarWidth }}" height="{{.TotalHeight}}" fill="{{ if .UseGradient }}url(#{{ .GradientID }}){{ else }}{{ .BarColor }}{{ end }}" />
   {{ if .Title }}
-    <path fill="{{ if .UseGradient }}{{ .GradientStart }}{{ else }}{{ .BarColor }}{{ end }}" d="M{{ .TitleWidth }} 0h4v{{.TotalHeight}}h-4z" />
+  <rect rx="{{ .Radius }}" x="0" y="{{ .TitleY }}" width="{{ .TitleWidth }}" height="{{.TitleHeight}}" fill="#{{ .TitleColor }}"/>
+  {{ end }}
+  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" y="{{ .ProgressY }}" width="{{ .ProgressWidth }}" height="{{.ProgressHeight}}" fill="{{ .TrackColor }}" />
+  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" y="{{ .ProgressY }}" width="{{ .BarWidth }}" height="{{.ProgressHeight}}" fill="{{ if .UseGradient }}url(#{{ .GradientID }}){{ else }}{{ .BarColor }}{{ end }}" />
+  {{ if .Title }}
+    <path fill="{{ if .UseGradient }}{{ .GradientStart }}{{ else }}{{ .BarColor }}{{ end }}" d="M{{ .TitleWidth }} {{ .ProgressY }}h4v{{.ProgressHeight}}h-4z" />
   {{ end }}
   {{ if ne .HighlightOpacity "0" }}
-  <rect rx="{{ .Radius }}" width="{{ .TotalWidth }}" height="{{.TotalHeight}}" fill="url(#a)" opacity="{{ .HighlightOpacity }}" />
+  {{ if .Title }}
+  <rect rx="{{ .Radius }}" x="0" y="{{ .TitleY }}" width="{{ .TitleWidth }}" height="{{.TitleHeight}}" fill="url(#a)" opacity="{{ .HighlightOpacity }}" />
+  {{ end }}
+  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" y="{{ .ProgressY }}" width="{{ .ProgressWidth }}" height="{{.ProgressHeight}}" fill="url(#a)" opacity="{{ .HighlightOpacity }}" />
   {{ end }}
 
   {{ if .Title }}
-    <g fill="{{ .TextColor }}" text-anchor="left" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="{{.FontSize}}">
+    <g fill="{{ .TextColor }}" text-anchor="start" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="{{.FontSize}}">
       {{ if ne .ShadowOpacity "0" }}
-      <text x="4" y="{{add .FontSize 4}}" fill="{{ .ShadowColor }}" fill-opacity="{{ .ShadowOpacity }}">
+      <text x="{{ .TitleShadowX }}" y="{{ .TitleShadowY }}" fill="{{ .ShadowColor }}" fill-opacity="{{ .ShadowOpacity }}">
         {{ .Title }}
       </text>
       {{ end }}
-      <text x="3" y="{{add .FontSize 3}}">
+      <text x="{{ .TitleTextX }}" y="{{ .TitleTextY }}">
         {{ .Title }}
       </text>
     </g>
   {{ end }}
 
-  <g fill="{{ .TextColor }}" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="{{.FontSize}}">
+  <g fill="{{ .TextColor }}" text-anchor="{{ .TextAnchor }}" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="{{.FontSize}}">
     {{ if ne .ShadowOpacity "0" }}
-    <text x="{{ .TextPosX }}" y="{{add .FontSize 4}}" fill="{{ .ShadowColor }}" fill-opacity="{{ .ShadowOpacity }}">
+    <text x="{{ .TextShadowX }}" y="{{ .TextShadowY }}" fill="{{ .ShadowColor }}" fill-opacity="{{ .ShadowOpacity }}">
       {{.Prefix}}{{.Progress}}{{.Suffix}}
     </text>
     {{ end }}
-    <text x="{{ sub .TextPosX 1 }}" y="{{add .FontSize 3}}">
+    <text x="{{ .TextPosX }}" y="{{ .TextPosY }}">
       {{.Prefix}}{{.Progress}}{{.Suffix}}
     </text>
   </g>

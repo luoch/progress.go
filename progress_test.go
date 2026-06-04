@@ -72,6 +72,29 @@ func TestGetTitleWidthUsesPadding(t *testing.T) {
 	}
 }
 
+func TestGetTextPosition(t *testing.T) {
+	tests := []struct {
+		align      string
+		wantX      int
+		wantShadow int
+		wantAnchor string
+	}{
+		{align: "left", wantX: 105, wantShadow: 106, wantAnchor: "start"},
+		{align: "center", wantX: 149, wantShadow: 150, wantAnchor: "middle"},
+		{align: "right", wantX: 195, wantShadow: 196, wantAnchor: "end"},
+		{align: "bad-value", wantX: 149, wantShadow: 150, wantAnchor: "middle"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.align, func(t *testing.T) {
+			gotX, gotShadow, gotAnchor := getTextPosition(100, 100, 11, tt.align)
+			if gotX != tt.wantX || gotShadow != tt.wantShadow || gotAnchor != tt.wantAnchor {
+				t.Fatalf("getTextPosition align %q = (%d, %d, %q), want (%d, %d, %q)", tt.align, gotX, gotShadow, gotAnchor, tt.wantX, tt.wantShadow, tt.wantAnchor)
+			}
+		})
+	}
+}
+
 func TestGetTheme(t *testing.T) {
 	if got := getTheme("mint"); got.Name != "mint" {
 		t.Fatalf("getTheme(%q).Name = %q, want mint", "mint", got.Name)
@@ -117,8 +140,12 @@ func TestIndexPage(t *testing.T) {
 		`data-copy="generated-markdown"`,
 		`data-theme="neon"`,
 		`data-skin="pill"`,
+		`data-align="right"`,
+		`id="titleheight"`,
 		`addParam(params, "theme", state.theme, "classic")`,
 		`addParam(params, "skin", state.skin, "badge")`,
+		`addParam(params, "titleheight", positiveInteger(fields.titleHeight.value, 0), 0)`,
+		`addParam(params, "align", state.align, "center")`,
 		`previewShell.style.backgroundColor = fields.previewBackground.value || "#ffffff"`,
 		"`/${state.type}/${progress}${query ? `?${query}` : \"\"}`",
 	} {
@@ -192,11 +219,35 @@ func TestProgressBarTitleSizing(t *testing.T) {
 	body := w.Body.String()
 	for _, want := range []string{
 		`<svg width="240" height="28"`,
-		`x="120" width="120" height="28"`,
+		`x="120" y="0" width="120" height="28"`,
 		`d="M120 0h4v28h-4z"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("title-sized bar body does not contain %q", want)
+		}
+	}
+}
+
+func TestProgressBarTextAlignAndTitleHeight(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	router := newRouter()
+
+	req := httptest.NewRequest(http.MethodGet, "/bar/50?title=progress&titlewidth=120&titleheight=16&height=28&width=240&align=right", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("GET /bar text align status = %d, want %d", w.Code, http.StatusOK)
+	}
+	body := w.Body.String()
+	for _, want := range []string{
+		`<svg width="240" height="28"`,
+		`x="0" y="6" width="120" height="16"`,
+		`text-anchor="end"`,
+		`<text x="235" y="18">`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Fatalf("aligned bar body does not contain %q", want)
 		}
 	}
 }

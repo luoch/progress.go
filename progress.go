@@ -13,27 +13,37 @@ import (
 )
 
 type Progress struct {
-	Title      string `form:"title,default="`
-	TitleColor string `form:"color,default=428bca"`
-	Theme      string `form:"theme,default=classic"`
-	Skin       string `form:"skin,default=badge"`
-	Scale      int    `form:"scale,default=100"`
-	Progress   int    `uri:"progress" binding:"required"`
-	Suffix     string `form:"suffix,default=%"`
-	Prefix     string `form:"prefix,default="`
-	Width      int    `form:"width,default=0"`
-	TitleWidth int    `form:"titlewidth,default=0"`
-	TitlePad   int    `form:"titlepadding,default=10"`
-	Height     int    `form:"height,default=20"`
-	FontSize   int    `form:"fontsize,default=11"`
-	Size       int    `form:"size,default=17"`
+	Title       string `form:"title,default="`
+	TitleColor  string `form:"color,default=428bca"`
+	Theme       string `form:"theme,default=classic"`
+	Skin        string `form:"skin,default=badge"`
+	Scale       int    `form:"scale,default=100"`
+	Progress    int    `uri:"progress" binding:"required"`
+	Suffix      string `form:"suffix,default=%"`
+	Prefix      string `form:"prefix,default="`
+	Width       int    `form:"width,default=0"`
+	TitleWidth  int    `form:"titlewidth,default=0"`
+	TitleHeight int    `form:"titleheight,default=0"`
+	TitlePad    int    `form:"titlepadding,default=10"`
+	TextAlign   string `form:"align,default=center"`
+	Height      int    `form:"height,default=20"`
+	FontSize    int    `form:"fontsize,default=11"`
+	Size        int    `form:"size,default=17"`
 }
 
 type ProgressBar struct {
 	Title            string
 	TitleColor       string
 	TitleWidth       int
+	TitleHeight      int
+	TitleY           int
+	TitleTextX       int
+	TitleShadowX     int
+	TitleTextY       int
+	TitleShadowY     int
 	ProgressWidth    int
+	ProgressHeight   int
+	ProgressY        int
 	BarWidth         int
 	TotalWidth       int
 	TotalHeight      int
@@ -52,6 +62,10 @@ type ProgressBar struct {
 	Progress         int
 	Prefix           string
 	TextPosX         int
+	TextShadowX      int
+	TextPosY         int
+	TextShadowY      int
+	TextAnchor       string
 	FontSize         int
 }
 
@@ -275,6 +289,64 @@ func getSVGTextWidth(text string, fontSize int) int {
 	return int(math.Ceil(width))
 }
 
+func normalizeTextAlign(align string) string {
+	switch strings.ToLower(strings.TrimSpace(align)) {
+	case "left", "start":
+		return "left"
+	case "right", "end":
+		return "right"
+	default:
+		return "center"
+	}
+}
+
+func getTextPosition(titleWidth int, progressWidth int, fontSize int, align string) (int, int, string) {
+	padding := fontSize / 2
+	if padding < 3 {
+		padding = 3
+	}
+
+	switch normalizeTextAlign(align) {
+	case "left":
+		x := titleWidth + padding
+		return x, x + 1, "start"
+	case "right":
+		x := titleWidth + progressWidth - padding
+		return x, x + 1, "end"
+	default:
+		x := int(float32(progressWidth)*0.5) + titleWidth
+		return x - 1, x, "middle"
+	}
+}
+
+func getTextBaseline(height int, fontSize int) int {
+	if height <= 0 {
+		height = getAutoHeight(fontSize)
+	}
+	if fontSize <= 0 {
+		fontSize = 11
+	}
+	return int(math.Round(float64(height+fontSize)/2.0 - 2.0))
+}
+
+func getAutoHeight(fontSize int) int {
+	if fontSize <= 0 {
+		fontSize = 11
+	}
+	return fontSize + 9
+}
+
+func getTitleTextPosition(fontSize int, padding int) (int, int) {
+	if padding < 0 {
+		padding = 0
+	}
+	x := padding / 2
+	if x < 3 {
+		x = 3
+	}
+	return x, x + 1
+}
+
 func getProgressbar(c *gin.Context) {
 	tmpl, tmplerr := c.MustGet("progressbar_template").(*template.Template)
 	if !tmplerr {
@@ -299,18 +371,37 @@ func getProgressbar(c *gin.Context) {
 	}
 	bar.FontSize = progress.FontSize
 	bar.TotalHeight = progress.Height
+	if bar.TotalHeight <= 0 {
+		bar.TotalHeight = getAutoHeight(bar.FontSize)
+	}
+	bar.ProgressHeight = bar.TotalHeight
+	bar.ProgressY = 0
 	if progress.Title != "" {
 		bar.TitleWidth = getTitleWidth(progress.Title, bar.FontSize, progress.TitlePad)
 		if progress.TitleWidth > 0 {
 			bar.TitleWidth = progress.TitleWidth
 		}
+		bar.TitleHeight = bar.TotalHeight
+		if progress.TitleHeight > 0 {
+			bar.TitleHeight = progress.TitleHeight
+		}
+		if bar.TitleHeight > bar.TotalHeight {
+			bar.TotalHeight = bar.TitleHeight
+			bar.ProgressHeight = bar.TotalHeight
+		}
+		bar.TitleY = (bar.TotalHeight - bar.TitleHeight) / 2
 		bar.ProgressWidth = 60
 	} else {
 		bar.TitleWidth = 0
+		bar.TitleHeight = 0
+		bar.TitleY = 0
 		bar.ProgressWidth = 90
 	}
 	if progress.Width > 0 {
 		bar.ProgressWidth = progress.Width - bar.TitleWidth
+	}
+	if bar.ProgressWidth < 0 {
+		bar.ProgressWidth = 0
 	}
 
 	bar.TotalWidth = bar.TitleWidth + bar.ProgressWidth
@@ -337,7 +428,12 @@ func getProgressbar(c *gin.Context) {
 	bar.Suffix = progress.Suffix
 	bar.Prefix = progress.Prefix
 	bar.Progress = progress.Progress
-	bar.TextPosX = int(float32(bar.ProgressWidth)*0.5) + bar.TitleWidth
+	bar.TitleTextX, bar.TitleShadowX = getTitleTextPosition(bar.FontSize, progress.TitlePad)
+	bar.TitleTextY = bar.TitleY + getTextBaseline(bar.TitleHeight, bar.FontSize)
+	bar.TitleShadowY = bar.TitleTextY + 1
+	bar.TextPosX, bar.TextShadowX, bar.TextAnchor = getTextPosition(bar.TitleWidth, bar.ProgressWidth, bar.FontSize, progress.TextAlign)
+	bar.TextPosY = getTextBaseline(bar.ProgressHeight, bar.FontSize)
+	bar.TextShadowY = bar.TextPosY + 1
 	var buf bytes.Buffer
 	if execErr := tmpl.Execute(&buf, bar); execErr != nil {
 		log.Println(execErr)

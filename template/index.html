@@ -214,6 +214,30 @@
       color: #fff;
     }
 
+    .align-control {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+      background: var(--surface-soft);
+    }
+
+    .align-control button {
+      border: 0;
+      min-height: 32px;
+      background: transparent;
+      color: #3f3f46;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .align-control button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
     .workspace {
       padding: 28px;
       display: grid;
@@ -478,19 +502,34 @@
 
         <div class="field-row bar-only">
           <div class="field">
-            <label for="titlewidth">Title width</label>
+            <label for="titlewidth">Title width (0 auto)</label>
             <input id="titlewidth" name="titlewidth" type="number" min="0" step="1" value="0">
           </div>
           <div class="field">
-            <label for="titlepadding">Title padding</label>
-            <input id="titlepadding" name="titlepadding" type="number" min="0" step="1" value="10">
+            <label for="titleheight">Title height (0 auto)</label>
+            <input id="titleheight" name="titleheight" type="number" min="0" step="1" value="0">
           </div>
         </div>
 
         <div class="field-row bar-only">
           <div class="field">
+            <label for="titlepadding">Title padding</label>
+            <input id="titlepadding" name="titlepadding" type="number" min="0" step="1" value="10">
+          </div>
+          <div class="field">
             <label for="height">Overall height</label>
             <input id="height" name="height" type="number" min="1" step="1" value="20">
+          </div>
+        </div>
+
+        <div class="field-row bar-only">
+          <div class="field">
+            <label>Text align</label>
+            <div class="align-control" role="group" aria-label="Progress text alignment">
+              <button type="button" data-align="left">Left</button>
+              <button type="button" class="active" data-align="center">Center</button>
+              <button type="button" data-align="right">Right</button>
+            </div>
           </div>
           <div class="field">
             <label for="bar-fontsize">Font size</label>
@@ -559,7 +598,7 @@
       mono: "#18181b"
     };
 
-    const state = { type: "bar", theme: "classic", skin: "badge" };
+    const state = { type: "bar", theme: "classic", skin: "badge", align: "center" };
     const fields = {
       progress: document.getElementById("progress"),
       scale: document.getElementById("scale"),
@@ -569,6 +608,7 @@
       color: document.getElementById("color"),
       width: document.getElementById("width"),
       titleWidth: document.getElementById("titlewidth"),
+      titleHeight: document.getElementById("titleheight"),
       titlePadding: document.getElementById("titlepadding"),
       height: document.getElementById("height"),
       barFontSize: document.getElementById("bar-fontsize"),
@@ -622,7 +662,9 @@
         addParam(params, "color", color, themeColors[state.theme].replace("#", ""));
         addParam(params, "width", positiveInteger(fields.width.value, 0), 0);
         addParam(params, "titlewidth", positiveInteger(fields.titleWidth.value, 0), 0);
+        addParam(params, "titleheight", positiveInteger(fields.titleHeight.value, 0), 0);
         addParam(params, "titlepadding", nonNegativeInteger(fields.titlePadding.value, 10), 10);
+        addParam(params, "align", state.align, "center");
         addParam(params, "height", positiveInteger(fields.height.value, 20), 20);
         addParam(params, "fontsize", positiveInteger(fields.barFontSize.value, 11), 11);
       } else {
@@ -667,6 +709,14 @@
       updateOutput();
     }
 
+    function updateAlign(align) {
+      state.align = align;
+      document.querySelectorAll("[data-align]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.align === align);
+      });
+      updateOutput();
+    }
+
     function updateOutput() {
       const url = new URL(buildPath(), window.location.origin).toString();
       previewShell.style.backgroundColor = fields.previewBackground.value || "#ffffff";
@@ -698,6 +748,10 @@
 
     document.querySelectorAll("[data-skin]").forEach((button) => {
       button.addEventListener("click", () => updateSkin(button.dataset.skin));
+    });
+
+    document.querySelectorAll("[data-align]").forEach((button) => {
+      button.addEventListener("click", () => updateAlign(button.dataset.align));
     });
 
     document.querySelectorAll("input, select, textarea").forEach((input) => {
