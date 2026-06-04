@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Progress in Markdown</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --surface: #ffffff;
+      --surface-soft: #edf2f7;
+      --border: #d7dee8;
+      --text: #182230;
+      --muted: #667085;
+      --accent: #2563eb;
+      --accent-dark: #1d4ed8;
+      --ok: #047857;
+      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+    }
+
+    .panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .brand {
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls {
+      display: grid;
+      gap: 18px;
+    }
+
+    .field,
+    .field-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field-row {
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      color: #344054;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      min-height: 40px;
+      padding: 8px 10px;
+      outline: none;
+    }
+
+    input[type="color"] {
+      padding: 4px;
+      height: 40px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .mode {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface-soft);
+    }
+
+    .mode button {
+      border: 0;
+      min-height: 38px;
+      background: transparent;
+      color: #344054;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .mode button.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .workspace {
+      padding: 28px;
+      display: grid;
+      gap: 20px;
+      align-content: start;
+    }
+
+    .preview-shell,
+    .output-shell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .preview-shell {
+      min-height: 220px;
+      display: grid;
+      align-items: center;
+      justify-items: center;
+      padding: 34px;
+    }
+
+    .preview {
+      display: grid;
+      align-items: center;
+      justify-items: center;
+      min-height: 80px;
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .preview img {
+      max-width: 100%;
+      height: auto;
+      image-rendering: auto;
+    }
+
+    .output-shell {
+      padding: 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .copy-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .copy-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+    }
+
+    .copy-button {
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      min-height: 40px;
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .copy-button:hover {
+      background: var(--accent-dark);
+    }
+
+    .status {
+      min-height: 20px;
+      color: var(--ok);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .workspace {
+        padding: 18px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .field-row,
+      .copy-line {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <aside class="panel">
+      <header class="brand">
+        <h1>Progress in Markdown</h1>
+        <p class="subtitle">Configure a progress badge and copy the generated URL or Markdown.</p>
+      </header>
+
+      <form class="controls" id="config-form">
+        <div class="mode" role="group" aria-label="Progress type">
+          <button type="button" class="active" data-type="bar">Bar</button>
+          <button type="button" data-type="pie">Pie</button>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="progress">Progress</label>
+            <input id="progress" name="progress" type="number" min="0" step="1" value="58">
+          </div>
+          <div class="field">
+            <label for="scale">Scale</label>
+            <input id="scale" name="scale" type="number" min="1" step="1" value="100">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="prefix">Prefix</label>
+            <input id="prefix" name="prefix" type="text" value="">
+          </div>
+          <div class="field">
+            <label for="suffix">Suffix</label>
+            <input id="suffix" name="suffix" type="text" value="%">
+          </div>
+        </div>
+
+        <div class="field bar-only">
+          <label for="title">Title</label>
+          <input id="title" name="title" type="text" value="progress">
+        </div>
+
+        <div class="field-row bar-only">
+          <div class="field">
+            <label for="color">Title color</label>
+            <input id="color" name="color" type="color" value="#428bca">
+          </div>
+          <div class="field">
+            <label for="width">Total width</label>
+            <input id="width" name="width" type="number" min="1" step="1" value="160">
+          </div>
+        </div>
+
+        <div class="field-row bar-only">
+          <div class="field">
+            <label for="height">Height</label>
+            <input id="height" name="height" type="number" min="1" step="1" value="20">
+          </div>
+          <div class="field">
+            <label for="bar-fontsize">Font size</label>
+            <input id="bar-fontsize" name="bar-fontsize" type="number" min="1" step="1" value="11">
+          </div>
+        </div>
+
+        <div class="field-row pie-only hidden">
+          <div class="field">
+            <label for="size">Pie size</label>
+            <input id="size" name="size" type="number" min="1" step="1" value="17">
+          </div>
+          <div class="field">
+            <label for="pie-fontsize">Font size</label>
+            <input id="pie-fontsize" name="pie-fontsize" type="number" min="1" step="1" value="11">
+          </div>
+        </div>
+      </form>
+    </aside>
+
+    <section class="workspace">
+      <div class="preview-shell">
+        <div class="preview">
+          <img id="preview" alt="Progress preview">
+        </div>
+      </div>
+
+      <section class="output-shell">
+        <div class="output-header">
+          <h2>Generated Content</h2>
+          <div class="status" id="copy-status" aria-live="polite"></div>
+        </div>
+
+        <div class="copy-group">
+          <label for="generated-url">URL</label>
+          <div class="copy-line">
+            <input id="generated-url" type="text" readonly>
+            <button class="copy-button" type="button" data-copy="generated-url">Copy URL</button>
+          </div>
+        </div>
+
+        <div class="copy-group">
+          <label for="generated-markdown">Markdown</label>
+          <div class="copy-line">
+            <textarea id="generated-markdown" readonly></textarea>
+            <button class="copy-button" type="button" data-copy="generated-markdown">Copy Markdown</button>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const state = { type: "bar" };
+    const fields = {
+      progress: document.getElementById("progress"),
+      scale: document.getElementById("scale"),
+      prefix: document.getElementById("prefix"),
+      suffix: document.getElementById("suffix"),
+      title: document.getElementById("title"),
+      color: document.getElementById("color"),
+      width: document.getElementById("width"),
+      height: document.getElementById("height"),
+      barFontSize: document.getElementById("bar-fontsize"),
+      size: document.getElementById("size"),
+      pieFontSize: document.getElementById("pie-fontsize")
+    };
+
+    const preview = document.getElementById("preview");
+    const urlOutput = document.getElementById("generated-url");
+    const markdownOutput = document.getElementById("generated-markdown");
+    const status = document.getElementById("copy-status");
+
+    function positiveInteger(value, fallback) {
+      const parsed = Number.parseInt(value, 10);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        return parsed;
+      }
+      return fallback;
+    }
+
+    function nonNegativeInteger(value, fallback) {
+      const parsed = Number.parseInt(value, 10);
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        return parsed;
+      }
+      return fallback;
+    }
+
+    function addParam(params, name, value, defaultValue) {
+      if (String(value) !== String(defaultValue)) {
+        params.set(name, value);
+      }
+    }
+
+    function buildPath() {
+      const progress = nonNegativeInteger(fields.progress.value, 0);
+      const scale = positiveInteger(fields.scale.value, 100);
+      const params = new URLSearchParams();
+
+      addParam(params, "scale", scale, 100);
+      addParam(params, "prefix", fields.prefix.value, "");
+      addParam(params, "suffix", fields.suffix.value, "%");
+
+      if (state.type === "bar") {
+        const color = fields.color.value.replace("#", "");
+        addParam(params, "title", fields.title.value, "");
+        addParam(params, "color", color, "428bca");
+        addParam(params, "width", positiveInteger(fields.width.value, 0), 0);
+        addParam(params, "height", positiveInteger(fields.height.value, 20), 20);
+        addParam(params, "fontsize", positiveInteger(fields.barFontSize.value, 11), 11);
+      } else {
+        addParam(params, "size", positiveInteger(fields.size.value, 17), 17);
+        addParam(params, "fontsize", positiveInteger(fields.pieFontSize.value, 11), 11);
+      }
+
+      const query = params.toString();
+      return `/${state.type}/${progress}${query ? `?${query}` : ""}`;
+    }
+
+    function updateType(type) {
+      state.type = type;
+      document.querySelectorAll("[data-type]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.type === type);
+      });
+      document.querySelectorAll(".bar-only").forEach((element) => {
+        element.classList.toggle("hidden", type !== "bar");
+      });
+      document.querySelectorAll(".pie-only").forEach((element) => {
+        element.classList.toggle("hidden", type !== "pie");
+      });
+      updateOutput();
+    }
+
+    function updateOutput() {
+      const url = new URL(buildPath(), window.location.origin).toString();
+      preview.src = url;
+      urlOutput.value = url;
+      markdownOutput.value = `![Progress](${url})`;
+      status.textContent = "";
+    }
+
+    async function copyField(id) {
+      const element = document.getElementById(id);
+      element.select();
+      element.setSelectionRange(0, element.value.length);
+      try {
+        await navigator.clipboard.writeText(element.value);
+      } catch (error) {
+        document.execCommand("copy");
+      }
+      status.textContent = id === "generated-url" ? "URL copied" : "Markdown copied";
+    }
+
+    document.querySelectorAll("[data-type]").forEach((button) => {
+      button.addEventListener("click", () => updateType(button.dataset.type));
+    });
+
+    document.querySelectorAll("input, select, textarea").forEach((input) => {
+      input.addEventListener("input", updateOutput);
+    });
+
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", () => copyField(button.dataset.copy));
+    });
+
+    updateOutput();
+  </script>
+</body>
+</html>

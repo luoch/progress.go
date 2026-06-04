@@ -211,10 +211,34 @@ func getProgresspie(c *gin.Context) {
 	c.String(200, buf.String())
 }
 
+func getIndex(c *gin.Context) {
+	tmpl, tmplerr := c.MustGet("index_template").(*template.Template)
+	if !tmplerr {
+		c.JSON(500, gin.H{"msg": tmplerr})
+		return
+	}
+
+	var buf bytes.Buffer
+	if execErr := tmpl.Execute(&buf, nil); execErr != nil {
+		log.Println(execErr)
+		c.JSON(500, gin.H{"msg": execErr})
+		return
+	}
+	c.Header("Content-Type", "text/html; charset=utf-8")
+	c.String(200, buf.String())
+}
+
 func TemplateMiddleware() gin.HandlerFunc {
 	sohaFuncMap := soha.CreateFuncMap()
 	progressbarTmpl, err := template.New("progressbar.svg").Funcs(sohaFuncMap).ParseFiles("template/progressbar.svg")
+	if err != nil {
+		log.Fatal(err)
+	}
 	progresspieTmpl, err := template.New("progresspie.svg").Funcs(sohaFuncMap).ParseFiles("template/progresspie.svg")
+	if err != nil {
+		log.Fatal(err)
+	}
+	indexTmpl, err := template.New("index.html").ParseFiles("template/index.html")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -222,14 +246,16 @@ func TemplateMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("progressbar_template", progressbarTmpl)
 		c.Set("progresspie_template", progresspieTmpl)
+		c.Set("index_template", indexTmpl)
 		c.Next()
 	}
 }
 
-func main() {
+func newRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(TemplateMiddleware())
 
+	r.GET("/", getIndex)
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "pong",
@@ -238,5 +264,10 @@ func main() {
 	r.GET("/bar/:progress", getProgressbar)
 	r.GET("/pie/:progress", getProgresspie)
 
+	return r
+}
+
+func main() {
+	r := newRouter()
 	r.Run(":8000") // listen and serve on 0.0.0.0:8000
 }
