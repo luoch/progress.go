@@ -7,16 +7,16 @@
   <style>
     :root {
       color-scheme: light;
-      --bg: #f5f7fb;
+      --bg: #f8fafc;
       --surface: #ffffff;
-      --surface-soft: #edf2f7;
-      --border: #d7dee8;
-      --text: #182230;
-      --muted: #667085;
-      --accent: #2563eb;
-      --accent-dark: #1d4ed8;
-      --ok: #047857;
-      --shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      --surface-soft: #f1f5f9;
+      --border: #d4d9e2;
+      --text: #18181b;
+      --muted: #64748b;
+      --accent: #18181b;
+      --accent-dark: #3f3f46;
+      --ok: #0f766e;
+      --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
     }
 
     * {
@@ -25,9 +25,12 @@
 
     body {
       margin: 0;
-      background: var(--bg);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(248, 250, 252, 0.92)),
+        radial-gradient(circle at 80% 10%, rgba(20, 184, 166, 0.16), transparent 28rem),
+        var(--bg);
       color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.45;
     }
 
@@ -41,7 +44,7 @@
     .app {
       min-height: 100vh;
       display: grid;
-      grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
     }
 
     .panel {
@@ -71,6 +74,13 @@
     .controls {
       display: grid;
       gap: 18px;
+    }
+
+    .section-label {
+      margin: 3px 0 -6px;
+      color: #3f3f46;
+      font-size: 12px;
+      font-weight: 800;
     }
 
     .field,
@@ -112,7 +122,7 @@
     select:focus,
     textarea:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+      box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.12);
     }
 
     .mode {
@@ -138,6 +148,70 @@
       color: #fff;
     }
 
+    .theme-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .theme-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      padding: 10px;
+      min-height: 74px;
+      display: grid;
+      gap: 8px;
+      text-align: left;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .theme-card.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.1);
+    }
+
+    .theme-name {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .theme-tone {
+      display: flex;
+      gap: 5px;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 4px;
+    }
+
+    .skin-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .skin-button {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+      color: #3f3f46;
+      min-height: 38px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .skin-button.active {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
     .workspace {
       padding: 28px;
       display: grid;
@@ -159,6 +233,30 @@
       align-items: center;
       justify-items: center;
       padding: 34px;
+    }
+
+    .preview-shell[data-theme="classic"] {
+      background: linear-gradient(135deg, #ffffff, #edf2f7);
+    }
+
+    .preview-shell[data-theme="slate"] {
+      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    }
+
+    .preview-shell[data-theme="mint"] {
+      background: linear-gradient(135deg, #ecfdf5, #ccfbf1);
+    }
+
+    .preview-shell[data-theme="amber"] {
+      background: linear-gradient(135deg, #fffbeb, #fed7aa);
+    }
+
+    .preview-shell[data-theme="neon"] {
+      background: linear-gradient(135deg, #020617, #111827);
+    }
+
+    .preview-shell[data-theme="mono"] {
+      background: linear-gradient(135deg, #fafafa, #d4d4d8);
     }
 
     .preview {
@@ -275,6 +373,66 @@
           <button type="button" data-type="pie">Pie</button>
         </div>
 
+        <div class="section-label">Theme</div>
+        <div class="theme-grid" role="group" aria-label="Progress theme">
+          <button type="button" class="theme-card active" data-theme="classic">
+            <span class="theme-name">Classic</span>
+            <span class="theme-tone">
+              <span class="swatch" style="background:#428bca"></span>
+              <span class="swatch" style="background:#d9534f"></span>
+              <span class="swatch" style="background:#5cb85c"></span>
+            </span>
+          </button>
+          <button type="button" class="theme-card" data-theme="slate">
+            <span class="theme-name">Slate</span>
+            <span class="theme-tone">
+              <span class="swatch" style="background:#111827"></span>
+              <span class="swatch" style="background:#e11d48"></span>
+              <span class="swatch" style="background:#2563eb"></span>
+            </span>
+          </button>
+          <button type="button" class="theme-card" data-theme="mint">
+            <span class="theme-name">Mint</span>
+            <span class="theme-tone">
+              <span class="swatch" style="background:#065f46"></span>
+              <span class="swatch" style="background:#14b8a6"></span>
+              <span class="swatch" style="background:#059669"></span>
+            </span>
+          </button>
+          <button type="button" class="theme-card" data-theme="amber">
+            <span class="theme-name">Amber</span>
+            <span class="theme-tone">
+              <span class="swatch" style="background:#78350f"></span>
+              <span class="swatch" style="background:#f59e0b"></span>
+              <span class="swatch" style="background:#84cc16"></span>
+            </span>
+          </button>
+          <button type="button" class="theme-card" data-theme="neon">
+            <span class="theme-name">Neon</span>
+            <span class="theme-tone">
+              <span class="swatch" style="background:#020617"></span>
+              <span class="swatch" style="background:#22d3ee"></span>
+              <span class="swatch" style="background:#a3e635"></span>
+            </span>
+          </button>
+          <button type="button" class="theme-card" data-theme="mono">
+            <span class="theme-name">Mono</span>
+            <span class="theme-tone">
+              <span class="swatch" style="background:#18181b"></span>
+              <span class="swatch" style="background:#71717a"></span>
+              <span class="swatch" style="background:#e4e4e7"></span>
+            </span>
+          </button>
+        </div>
+
+        <div class="section-label">Skin</div>
+        <div class="skin-grid" role="group" aria-label="Progress skin">
+          <button type="button" class="skin-button active" data-skin="badge">Badge</button>
+          <button type="button" class="skin-button" data-skin="flat">Flat</button>
+          <button type="button" class="skin-button" data-skin="soft">Soft</button>
+          <button type="button" class="skin-button" data-skin="pill">Pill</button>
+        </div>
+
         <div class="field-row">
           <div class="field">
             <label for="progress">Progress</label>
@@ -338,7 +496,7 @@
     </aside>
 
     <section class="workspace">
-      <div class="preview-shell">
+      <div class="preview-shell" id="preview-shell" data-theme="classic">
         <div class="preview">
           <img id="preview" alt="Progress preview">
         </div>
@@ -370,7 +528,16 @@
   </main>
 
   <script>
-    const state = { type: "bar" };
+    const themeColors = {
+      classic: "#428bca",
+      slate: "#111827",
+      mint: "#065f46",
+      amber: "#78350f",
+      neon: "#020617",
+      mono: "#18181b"
+    };
+
+    const state = { type: "bar", theme: "classic", skin: "badge" };
     const fields = {
       progress: document.getElementById("progress"),
       scale: document.getElementById("scale"),
@@ -386,6 +553,7 @@
     };
 
     const preview = document.getElementById("preview");
+    const previewShell = document.getElementById("preview-shell");
     const urlOutput = document.getElementById("generated-url");
     const markdownOutput = document.getElementById("generated-markdown");
     const status = document.getElementById("copy-status");
@@ -420,11 +588,13 @@
       addParam(params, "scale", scale, 100);
       addParam(params, "prefix", fields.prefix.value, "");
       addParam(params, "suffix", fields.suffix.value, "%");
+      addParam(params, "theme", state.theme, "classic");
+      addParam(params, "skin", state.skin, "badge");
 
       if (state.type === "bar") {
         const color = fields.color.value.replace("#", "");
         addParam(params, "title", fields.title.value, "");
-        addParam(params, "color", color, "428bca");
+        addParam(params, "color", color, themeColors[state.theme].replace("#", ""));
         addParam(params, "width", positiveInteger(fields.width.value, 0), 0);
         addParam(params, "height", positiveInteger(fields.height.value, 20), 20);
         addParam(params, "fontsize", positiveInteger(fields.barFontSize.value, 11), 11);
@@ -451,6 +621,26 @@
       updateOutput();
     }
 
+    function updateTheme(theme) {
+      state.theme = theme;
+      document.querySelectorAll("[data-theme]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.theme === theme);
+      });
+      previewShell.dataset.theme = theme;
+      if (fields.color.value.toLowerCase() !== themeColors[theme].toLowerCase()) {
+        fields.color.value = themeColors[theme];
+      }
+      updateOutput();
+    }
+
+    function updateSkin(skin) {
+      state.skin = skin;
+      document.querySelectorAll("[data-skin]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.skin === skin);
+      });
+      updateOutput();
+    }
+
     function updateOutput() {
       const url = new URL(buildPath(), window.location.origin).toString();
       preview.src = url;
@@ -473,6 +663,14 @@
 
     document.querySelectorAll("[data-type]").forEach((button) => {
       button.addEventListener("click", () => updateType(button.dataset.type));
+    });
+
+    document.querySelectorAll("[data-theme]").forEach((button) => {
+      button.addEventListener("click", () => updateTheme(button.dataset.theme));
+    });
+
+    document.querySelectorAll("[data-skin]").forEach((button) => {
+      button.addEventListener("click", () => updateSkin(button.dataset.skin));
     });
 
     document.querySelectorAll("input, select, textarea").forEach((input) => {

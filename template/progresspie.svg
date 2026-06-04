@@ -1,18 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{{ .TotalWidth }}" height="{{.TotalHeight}}" viewBox="-{{div .TotalHeight 2.0}} -{{div .TotalHeight 2.0}} {{ .TotalWidth }} {{.TotalHeight}}" style="vertical-align: bottom;">
-  <circle cx="0" cy="0" r="{{ .CircleRadius }}" transform="rotate(-90)" style="stroke: {{.PieColor}}; fill: none; stroke-width: 2;">
+  {{ if .UseGradient }}
+  <linearGradient id="{{ .GradientID }}" x1="-100%" x2="100%" y1="0" y2="0">
+    <stop offset="0" stop-color="{{ .GradientStart }}"/>
+    <stop offset="1" stop-color="{{ .GradientEnd }}"/>
+  </linearGradient>
+  {{ end }}
+
+  <circle cx="0" cy="0" r="{{ .CircleRadius }}" transform="rotate(-90)" style="stroke: {{.TrackColor}}; fill: none; stroke-width: {{ .TrackStrokeWidth }};">
   </circle>
   
   {{ if lt .Ratio 1.0 }}
-  <path d="M0,-{{.R}} A{{.R}},{{.R}} 0 {{.LargeArcFlag}},1 {{.TargetX}},{{.TargetY}}" style="fill: none; stroke: {{.PieColor}}; stroke-width: {{mul .R 2}}; stroke-linecap: butt;">
+  <path d="M0,-{{.R}} A{{.R}},{{.R}} 0 {{.LargeArcFlag}},1 {{.TargetX}},{{.TargetY}}" style="fill: none; stroke: {{ if .UseGradient }}url(#{{ .GradientID }}){{ else }}{{.PieColor}}{{ end }}; stroke-width: {{mul .R 2}}; stroke-linecap: {{ .LineCap }};">
   </path>
   {{ end }}
 
   {{ if ge .Ratio 1.0 }}
-  <circle cx="0" cy="0" r="{{ .CircleRadius }}" style="stroke: {{.PieColor}}; stroke-width: 0; fill: {{.PieColor}};">
+  <circle cx="0" cy="0" r="{{ .CircleRadius }}" style="stroke: {{ if .UseGradient }}url(#{{ .GradientID }}){{ else }}{{.PieColor}}{{ end }}; stroke-width: 0; fill: {{ if .UseGradient }}url(#{{ .GradientID }}){{ else }}{{.PieColor}}{{ end }};">
   </circle>
   {{ end }}
-  <text x="{{ .TextPosX }}" y="{{.TextPosY}}" font-size="{{.FontSize}}">
+  <text x="{{ .TextPosX }}" y="{{.TextPosY}}" font-size="{{.FontSize}}" fill="{{ .TextColor }}">
       {{.Prefix}}{{.Progress}}{{.Suffix}}
   </text>
 </svg>
