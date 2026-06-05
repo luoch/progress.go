@@ -12,18 +12,18 @@
   {{ end }}
 
   {{ if .Title }}
-  <rect rx="{{ .Radius }}" x="0" y="{{ .TitleY }}" width="{{ .TitleWidth }}" height="{{.TitleHeight}}" fill="#{{ .TitleColor }}"/>
+  <path fill="#{{ .TitleColor }}" d="{{ .TitlePath }}"/>
   {{ end }}
-  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" y="{{ .ProgressY }}" width="{{ .ProgressWidth }}" height="{{.ProgressHeight}}" fill="{{ .TrackColor }}" />
-  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" y="{{ .ProgressY }}" width="{{ .BarWidth }}" height="{{.ProgressHeight}}" fill="{{ if .UseGradient }}url(#{{ .GradientID }}){{ else }}{{ .BarColor }}{{ end }}" />
+  <path fill="{{ .TrackColor }}" d="{{ .TrackPath }}" />
+  <path fill="{{ if .UseGradient }}url(#{{ .GradientID }}){{ else }}{{ .BarColor }}{{ end }}" d="{{ .BarPath }}" />
   {{ if .Title }}
     <path fill="{{ if .UseGradient }}{{ .GradientStart }}{{ else }}{{ .BarColor }}{{ end }}" d="M{{ .TitleWidth }} {{ .ProgressY }}h4v{{.ProgressHeight}}h-4z" />
   {{ end }}
   {{ if ne .HighlightOpacity "0" }}
   {{ if .Title }}
-  <rect rx="{{ .Radius }}" x="0" y="{{ .TitleY }}" width="{{ .TitleWidth }}" height="{{.TitleHeight}}" fill="url(#a)" opacity="{{ .HighlightOpacity }}" />
+  <path fill="url(#a)" d="{{ .TitlePath }}" opacity="{{ .HighlightOpacity }}" />
   {{ end }}
-  <rect rx="{{ .Radius }}" x="{{ .TitleWidth }}" y="{{ .ProgressY }}" width="{{ .ProgressWidth }}" height="{{.ProgressHeight}}" fill="url(#a)" opacity="{{ .HighlightOpacity }}" />
+  <path fill="url(#a)" d="{{ .TrackPath }}" opacity="{{ .HighlightOpacity }}" />
   {{ end }}
 
   {{ if .Title }}

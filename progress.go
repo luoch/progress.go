@@ -41,9 +41,12 @@ type ProgressBar struct {
 	TitleShadowX     int
 	TitleTextY       int
 	TitleShadowY     int
+	TitlePath        string
 	ProgressWidth    int
 	ProgressHeight   int
 	ProgressY        int
+	TrackPath        string
+	BarPath          string
 	BarWidth         int
 	TotalWidth       int
 	TotalHeight      int
@@ -347,6 +350,65 @@ func getTitleTextPosition(fontSize int, padding int) (int, int) {
 	return x, x + 1
 }
 
+func clampRadius(radius int, width int, height int) int {
+	if radius < 0 || width <= 0 || height <= 0 {
+		return 0
+	}
+	maxRadius := width / 2
+	if height/2 < maxRadius {
+		maxRadius = height / 2
+	}
+	if radius > maxRadius {
+		return maxRadius
+	}
+	return radius
+}
+
+func getOuterPath(x int, y int, width int, height int, radius int, roundLeft bool, roundRight bool) string {
+	if width <= 0 || height <= 0 {
+		return ""
+	}
+	r := clampRadius(radius, width, height)
+	if r == 0 {
+		return "M" + strconv.Itoa(x) + " " + strconv.Itoa(y) + "h" + strconv.Itoa(width) + "v" + strconv.Itoa(height) + "h-" + strconv.Itoa(width) + "z"
+	}
+
+	right := x + width
+	bottom := y + height
+	if roundLeft && roundRight {
+		return "M" + strconv.Itoa(x+r) + " " + strconv.Itoa(y) +
+			"H" + strconv.Itoa(right-r) +
+			"Q" + strconv.Itoa(right) + " " + strconv.Itoa(y) + " " + strconv.Itoa(right) + " " + strconv.Itoa(y+r) +
+			"V" + strconv.Itoa(bottom-r) +
+			"Q" + strconv.Itoa(right) + " " + strconv.Itoa(bottom) + " " + strconv.Itoa(right-r) + " " + strconv.Itoa(bottom) +
+			"H" + strconv.Itoa(x+r) +
+			"Q" + strconv.Itoa(x) + " " + strconv.Itoa(bottom) + " " + strconv.Itoa(x) + " " + strconv.Itoa(bottom-r) +
+			"V" + strconv.Itoa(y+r) +
+			"Q" + strconv.Itoa(x) + " " + strconv.Itoa(y) + " " + strconv.Itoa(x+r) + " " + strconv.Itoa(y) +
+			"z"
+	}
+	if roundLeft {
+		return "M" + strconv.Itoa(x+r) + " " + strconv.Itoa(y) +
+			"H" + strconv.Itoa(right) +
+			"V" + strconv.Itoa(bottom) +
+			"H" + strconv.Itoa(x+r) +
+			"Q" + strconv.Itoa(x) + " " + strconv.Itoa(bottom) + " " + strconv.Itoa(x) + " " + strconv.Itoa(bottom-r) +
+			"V" + strconv.Itoa(y+r) +
+			"Q" + strconv.Itoa(x) + " " + strconv.Itoa(y) + " " + strconv.Itoa(x+r) + " " + strconv.Itoa(y) +
+			"z"
+	}
+	if roundRight {
+		return "M" + strconv.Itoa(x) + " " + strconv.Itoa(y) +
+			"H" + strconv.Itoa(right-r) +
+			"Q" + strconv.Itoa(right) + " " + strconv.Itoa(y) + " " + strconv.Itoa(right) + " " + strconv.Itoa(y+r) +
+			"V" + strconv.Itoa(bottom-r) +
+			"Q" + strconv.Itoa(right) + " " + strconv.Itoa(bottom) + " " + strconv.Itoa(right-r) + " " + strconv.Itoa(bottom) +
+			"H" + strconv.Itoa(x) +
+			"z"
+	}
+	return "M" + strconv.Itoa(x) + " " + strconv.Itoa(y) + "h" + strconv.Itoa(width) + "v" + strconv.Itoa(height) + "h-" + strconv.Itoa(width) + "z"
+}
+
 func getProgressbar(c *gin.Context) {
 	tmpl, tmplerr := c.MustGet("progressbar_template").(*template.Template)
 	if !tmplerr {
@@ -419,6 +481,9 @@ func getProgressbar(c *gin.Context) {
 	if skin.Radius >= 0 {
 		bar.Radius = skin.Radius
 	}
+	bar.TitlePath = getOuterPath(0, bar.TitleY, bar.TitleWidth, bar.TitleHeight, bar.Radius, true, false)
+	bar.TrackPath = getOuterPath(bar.TitleWidth, bar.ProgressY, bar.ProgressWidth, bar.ProgressHeight, bar.Radius, bar.Title == "", true)
+	bar.BarPath = getOuterPath(bar.TitleWidth, bar.ProgressY, bar.BarWidth, bar.ProgressHeight, bar.Radius, bar.Title == "", bar.BarWidth == bar.ProgressWidth)
 	bar.GradientID = "progress-gradient-" + theme.Name
 	bar.GradientStart = theme.GradientStart
 	bar.GradientEnd = theme.GradientEnd

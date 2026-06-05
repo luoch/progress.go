@@ -95,6 +95,15 @@ func TestGetTextPosition(t *testing.T) {
 	}
 }
 
+func TestGetOuterPath(t *testing.T) {
+	if got := getOuterPath(0, 0, 40, 20, 4, true, false); got != `M4 0H40V20H4Q0 20 0 16V4Q0 0 4 0z` {
+		t.Fatalf("left-rounded path = %q", got)
+	}
+	if got := getOuterPath(40, 0, 80, 20, 4, false, true); got != `M40 0H116Q120 0 120 4V16Q120 20 116 20H40z` {
+		t.Fatalf("right-rounded path = %q", got)
+	}
+}
+
 func TestGetTheme(t *testing.T) {
 	if got := getTheme("mint"); got.Name != "mint" {
 		t.Fatalf("getTheme(%q).Name = %q, want mint", "mint", got.Name)
@@ -175,7 +184,7 @@ func TestProgressThemeRendering(t *testing.T) {
 		`id="progress-gradient-neon"`,
 		`fill="#020617"`,
 		`url(#progress-gradient-neon)`,
-		`rx="6"`,
+		`d="M6 0H37V20H6Q0 20 0 14V6Q0 0 6 0z"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Fatalf("themed bar body does not contain %q", want)
@@ -219,7 +228,8 @@ func TestProgressBarTitleSizing(t *testing.T) {
 	body := w.Body.String()
 	for _, want := range []string{
 		`<svg width="240" height="28"`,
-		`x="120" y="0" width="120" height="28"`,
+		`d="M4 0H120V28H4Q0 28 0 24V4Q0 0 4 0z"`,
+		`d="M120 0H236Q240 0 240 4V24Q240 28 236 28H120z"`,
 		`d="M120 0h4v28h-4z"`,
 	} {
 		if !strings.Contains(body, want) {
@@ -242,7 +252,7 @@ func TestProgressBarTextAlignAndTitleHeight(t *testing.T) {
 	body := w.Body.String()
 	for _, want := range []string{
 		`<svg width="240" height="28"`,
-		`x="0" y="6" width="120" height="16"`,
+		`d="M4 6H120V22H4Q0 22 0 18V10Q0 6 4 6z"`,
 		`text-anchor="end"`,
 		`<text x="235" y="18">`,
 	} {
